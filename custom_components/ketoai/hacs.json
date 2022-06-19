@@ -1,0 +1,6 @@
+{
+  "name": "Keto AI",
+  "domains": ["sensor"],
+  "iot_class": ["Local Push"],
+  "render_readme": "True"
+}

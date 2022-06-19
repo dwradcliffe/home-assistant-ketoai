@@ -1,0 +1,10 @@
+{
+  "domain": "ketoai",
+  "name": "Keto AI",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/keto-ai",
+  "requirements": [],
+  "dependencies": ["webhook"],
+  "codeowners": [],
+  "iot_class": "cloud_push"
+}

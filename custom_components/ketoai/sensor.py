@@ -23,11 +23,17 @@ async def async_setup_entry(
 ):
 
     entities = [
-      PoolSensorEntity(entry, "ph"),
-      PoolSensorEntity(entry, "sanitizer"),
-      PoolSensorEntity(entry, "water_level"),
-      PoolSensorEntity(entry, "water_temp"),
-      PoolSensorEntity(entry, "battery_level"),
+        PoolSensorEntity(entry, "ph"),
+        PoolSensorEntity(entry, "sanitizer"),
+        PoolSensorEntity(entry, "water_level"),
+        PoolSensorEntity(entry, "water_temp"),
+        PoolSensorEntity(entry, "battery_level"),
+        PoolSensorEntity(entry, "rssi"),
+        PoolSensorEntity(entry, "solar_status"),
+        PoolSensorEntity(entry, "last_updated"),
+        PoolSensorEntity(entry, "pool_status"),
+        PoolSensorEntity(entry, "outdoor_temp"),
+        PoolSensorEntity(entry, "firmware_version"),
     ]
 
     async_add_entities(entities)
@@ -54,6 +60,12 @@ class PoolSensorEntity(SensorEntity):
             "water_temp": "Water Temperature",
             "water_level": "Water Level",
             "battery_level": "Battery Level",
+            "rssi": "Wifi Signal Strength",
+            "solar_status": "Solar Status",
+            "last_updated": "Last Updated",
+            "pool_status": "Pool Status",
+            "outdoor_temp": "Outdoor Temperature",
+            "firmware_version": "Firmware Version",
         }.get(attr_name, attr_name)
 
         self._attr_icon = {
@@ -62,20 +74,28 @@ class PoolSensorEntity(SensorEntity):
             "water_level": "mdi:waves",
             "water_temp": "mdi:coolant-temperature",
             "battery_level": "mdi:battery",
+            "rssi": "mdi:wifi",
+            "solar_status": "mdi:solar-power",
+            "last_updated": "mdi:update",
+            "pool_status": "mdi:list-status",
+            "outdoor_temp": "mdi:thermometer",
+            "firmware_version": "mdi:chip",
         }.get(attr_name)
 
         self._attr_device_class = {
             "sanitizer": SensorDeviceClass.VOLTAGE,
             "water_temp": SensorDeviceClass.TEMPERATURE,
             "battery_level": SensorDeviceClass.BATTERY,
+            "rssi": SensorDeviceClass.SIGNAL_STRENGTH,
+            "outdoor_temp": SensorDeviceClass.TEMPERATURE,
         }.get(attr_name)
 
         self._attr_native_unit_of_measurement = {
             "ph": CONCENTRATION_PARTS_PER_MILLION,
-            # "sanitizer": ,
-            # "water_level": ,
             "water_temp": TEMP_FAHRENHEIT,
             "battery_level": "%",
+            "rssi": "dBm",
+            "outdoor_temp": TEMP_FAHRENHEIT,
         }.get(attr_name)
 
     _attr_state_class = SensorStateClass.MEASUREMENT
@@ -96,8 +116,6 @@ class PoolSensorEntity(SensorEntity):
     @callback
     def _async_receive_data(self, data):
         """Receive new state data for the entity."""
-        # if data["id"] != self._attr_unique_id:
-        #     return
         if data.get(self.__attr_name) is not None:
             self._attr_native_value = data[self.__attr_name]
             self.async_write_ha_state()

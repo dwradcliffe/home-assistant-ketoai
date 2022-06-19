@@ -6,6 +6,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -27,13 +28,13 @@ async def async_setup_entry(
         PoolSensorEntity(entry, "sanitizer"),
         PoolSensorEntity(entry, "water_level"),
         PoolSensorEntity(entry, "water_temp"),
-        PoolSensorEntity(entry, "battery_level"),
-        PoolSensorEntity(entry, "rssi"),
-        PoolSensorEntity(entry, "solar_status"),
-        PoolSensorEntity(entry, "last_updated"),
+        PoolSensorEntity(entry, "battery_level", True),
+        PoolSensorEntity(entry, "rssi", True),
+        PoolSensorEntity(entry, "solar_status", True),
+        PoolSensorEntity(entry, "last_updated", True),
         PoolSensorEntity(entry, "pool_status"),
         PoolSensorEntity(entry, "outdoor_temp"),
-        PoolSensorEntity(entry, "firmware_version"),
+        PoolSensorEntity(entry, "firmware_version", True),
     ]
 
     async_add_entities(entities)
@@ -45,6 +46,7 @@ class PoolSensorEntity(SensorEntity):
         self,
         entry: ConfigEntry,
         attr_name: str,
+        diagnostic: bool = False,
         **kwargs,
     ):
         """Initialize."""
@@ -52,6 +54,7 @@ class PoolSensorEntity(SensorEntity):
 
         # We don't know anything about the actual device before the
         # first webhook so we just use the config entry id
+        self._entry_id = entry.entry_id
         self._attr_unique_id = entry.entry_id + "-" + attr_name
 
         self._attr_name = {
@@ -98,8 +101,25 @@ class PoolSensorEntity(SensorEntity):
             "outdoor_temp": TEMP_FAHRENHEIT,
         }.get(attr_name)
 
+        if diagnostic:
+            self._attr_entity_category = EntityCategory.DIAGNOSTIC
+
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_should_poll = False
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {
+                # Serial numbers are unique identifiers within a specific domain
+                (DOMAIN, self._entry_id)
+            },
+            "name": "Keto AI Smart Skimmer",
+            "manufacturer": "Keto AI",
+            "model": "Smart Skimmer",
+            "suggested_area": "Pool",
+            # "sw_version": ,
+        }
 
     async def async_added_to_hass(self):
         """Register state update callback."""

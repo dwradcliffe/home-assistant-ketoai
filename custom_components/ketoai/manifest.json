@@ -2,7 +2,7 @@
   "domain": "ketoai",
   "name": "Keto AI",
   "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/keto-ai",
+  "documentation": "https://github.com/dwradcliffe/home-assistant-ketoai",
   "requirements": [],
   "dependencies": ["webhook"],
   "codeowners": ["dwradcliffe"],
